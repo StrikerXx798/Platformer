@@ -6,9 +6,9 @@ public class PlayerAnimator : MonoBehaviour
 
     private static class Params
     {
-        public static readonly int XVelocity = Animator.StringToHash(nameof(XVelocity));
-        public static readonly int YVelocity = Animator.StringToHash(nameof(YVelocity));
-        public static readonly int IsGrounded = Animator.StringToHash(nameof(IsGrounded));
+        internal static readonly int XVelocity = Animator.StringToHash(nameof(XVelocity));
+        internal static readonly int YVelocity = Animator.StringToHash(nameof(YVelocity));
+        internal static readonly int IsGrounded = Animator.StringToHash(nameof(IsGrounded));
     }
 
     private void Awake()

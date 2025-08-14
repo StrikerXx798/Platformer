@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 112011461}
   - component: {fileID: 112011459}
   - component: {fileID: 112011460}
+  - component: {fileID: 112011464}
   m_Layer: 0
   m_Name: Hero
   m_TagString: Untagged
@@ -360,10 +361,6 @@ MonoBehaviour:
   _speed: 5
   _jumpForce: 7.5
   _inputReader: {fileID: 112011459}
-  _groundCheckDistance: 1
-  _groundMask:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!114 &112011463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -376,6 +373,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 248198e95f6c458fbead8dc1b2154ee7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &112011464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 112011453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d9b55dc4de4d4abe8454deddff06a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _groundCheckDistance: 1
+  _groundMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &424849956
 GameObject:
   m_ObjectHideFlags: 0

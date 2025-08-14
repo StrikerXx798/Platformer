@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
 public class EnemyAnimator : MonoBehaviour
 {
     private Animator _animator;
-    public static readonly int XVelocity = Animator.StringToHash(nameof(XVelocity));
+
+    private static class Params
+    {
+        internal static readonly int XVelocity = Animator.StringToHash(nameof(XVelocity));
+    }
 
     private void Awake()
     {
@@ -13,6 +17,6 @@ public class EnemyAnimator : MonoBehaviour
 
     public void SetXVelocity(float value)
     {
-        _animator.SetFloat(XVelocity, value);
+        _animator.SetFloat(Params.XVelocity, value);
     }
 }
