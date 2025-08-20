@@ -9,6 +9,7 @@ public class PlayerAnimator : MonoBehaviour
         internal static readonly int XVelocity = Animator.StringToHash(nameof(XVelocity));
         internal static readonly int YVelocity = Animator.StringToHash(nameof(YVelocity));
         internal static readonly int IsGrounded = Animator.StringToHash(nameof(IsGrounded));
+        internal static readonly int IsAttack = Animator.StringToHash(nameof(IsAttack));
     }
 
     private void Awake()
@@ -29,5 +30,10 @@ public class PlayerAnimator : MonoBehaviour
     public void SetIsGrounded(bool value)
     {
         _animator.SetBool(Params.IsGrounded, value);
+    }
+
+    public void TriggerAttack()
+    {
+        _animator.SetTrigger(Params.IsAttack);
     }
 }

@@ -18,6 +18,6 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
         _enemyAnimator.SetXVelocity(_patroller.CurrentVelocity.x);
-        _rotator.FlipSprite(_patroller.CurrentVelocity.x > 0);
+        _rotator.FlipSprite(_patroller.CurrentVelocity.x < 0);
     }
 }
