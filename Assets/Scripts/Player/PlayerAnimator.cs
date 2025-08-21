@@ -10,6 +10,7 @@ public class PlayerAnimator : MonoBehaviour
         internal static readonly int YVelocity = Animator.StringToHash(nameof(YVelocity));
         internal static readonly int IsGrounded = Animator.StringToHash(nameof(IsGrounded));
         internal static readonly int IsAttack = Animator.StringToHash(nameof(IsAttack));
+        internal static readonly int IsSkillVampire = Animator.StringToHash(nameof(IsSkillVampire));
     }
     public void SetXVelocity(float value)
     {
@@ -29,5 +30,10 @@ public class PlayerAnimator : MonoBehaviour
     public void TriggerAttack()
     {
         _animator.SetTrigger(Params.IsAttack);
+    }
+    
+    public void TriggerSkill()
+    {
+        _animator.SetTrigger(Params.IsSkillVampire);
     }
 }

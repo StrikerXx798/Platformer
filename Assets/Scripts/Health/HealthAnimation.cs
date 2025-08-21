@@ -2,17 +2,17 @@
 
 public class HealthAnimation : MonoBehaviour
 {
-    [SerializeField] Health _health;
+    [SerializeField] private Health _health;
     [SerializeField] private HealthAnimator _healthAnimator;
 
     private void OnEnable()
     {
-        _health.HealthChanged += OnHurt;
+        _health.Damaged += OnHurt;
     }
     
     private void OnDisable()
     {
-        _health.HealthChanged += OnHurt;
+        _health.Damaged -= OnHurt;
     }
 
     private void OnHurt(float currentHealth)

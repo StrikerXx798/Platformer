@@ -10,6 +10,7 @@ public class Health : MonoBehaviour
     private float _currentHealth;
 
     public event Action<float> HealthChanged;
+    public event Action<float> Damaged;
 
     public float MaxHealth { get; private set; }
 
@@ -19,7 +20,7 @@ public class Health : MonoBehaviour
         _currentHealth = _maxHealth;
     }
 
-    private void ChangeHealth(float value, string valueName, char mathOperator)
+    private float ChangeHealth(float value, string valueName, char mathOperator)
     {
         if (value < 0)
         {
@@ -33,13 +34,17 @@ public class Health : MonoBehaviour
             _ => throw new ArgumentException($"Unknown math operator {mathOperator}")
         };
 
-        _currentHealth = Mathf.Clamp(newHealth, MinHealth, MaxHealth);
-        HealthChanged?.Invoke(_currentHealth);
+        var clampedHealth = Mathf.Clamp(newHealth, MinHealth, MaxHealth);
+        _currentHealth = clampedHealth;
+        HealthChanged?.Invoke(clampedHealth);
+
+        return clampedHealth;
     }
 
     public void DealDamage(float damage)
     {
-        ChangeHealth(damage, "Damage", '-');
+        var currentHealth = ChangeHealth(damage, "Damage", '-');
+        Damaged?.Invoke(currentHealth);
     }
 
     public void Heal(float heal)
