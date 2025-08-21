@@ -1,28 +1,49 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    [SerializeField] float _maxHealth;
+    private const float MinHealth = 0f;
 
-    public event Action DamageTaken;
+    [SerializeField] private float _maxHealth;
 
-    public float CurrentHealth { get; private set; }
+    private float _currentHealth;
+
+    public event Action<float> HealthChanged;
+
+    public float MaxHealth { get; private set; }
 
     private void Awake()
     {
-        CurrentHealth = _maxHealth;
+        MaxHealth = _maxHealth;
+        _currentHealth = _maxHealth;
     }
 
-    public void TakeDamage(float damage)
+    private void ChangeHealth(float value, string valueName, char mathOperator)
     {
-        CurrentHealth -= damage;
-        DamageTaken?.Invoke();
+        if (value < 0)
+        {
+            throw new ArgumentException($"{valueName} value can't be negative");
+        }
+
+        var newHealth = mathOperator switch
+        {
+            '-' => _currentHealth -= Mathf.Abs(value),
+            '+' => _currentHealth += value,
+            _ => throw new ArgumentException($"Unknown math operator {mathOperator}")
+        };
+
+        _currentHealth = Mathf.Clamp(newHealth, MinHealth, MaxHealth);
+        HealthChanged?.Invoke(_currentHealth);
+    }
+
+    public void DealDamage(float damage)
+    {
+        ChangeHealth(damage, "Damage", '-');
     }
 
     public void Heal(float heal)
     {
-        var newHealth = CurrentHealth + heal;
-        CurrentHealth = newHealth >= _maxHealth ? _maxHealth : newHealth;
+        ChangeHealth(heal, "Heal", '+');
     }
 }

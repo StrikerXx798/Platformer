@@ -1,30 +1,23 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-[RequireComponent(typeof(HealthAnimator))]
 public class HealthAnimation : MonoBehaviour
 {
     [SerializeField] Health _health;
-    private HealthAnimator _healthAnimator;
-
-    private void Awake()
-    {
-        _healthAnimator = GetComponent<HealthAnimator>();
-    }
+    [SerializeField] private HealthAnimator _healthAnimator;
 
     private void OnEnable()
     {
-        _health.DamageTaken += OnHurt;
+        _health.HealthChanged += OnHurt;
     }
     
     private void OnDisable()
     {
-        _health.DamageTaken += OnHurt;
+        _health.HealthChanged += OnHurt;
     }
 
-    private void OnHurt()
+    private void OnHurt(float currentHealth)
     {
-        if (_health.CurrentHealth <= 0)
+        if (currentHealth <= 0)
         {
             _healthAnimator.TriggerDie();
             return;

@@ -2,7 +2,7 @@
 
 public class PlayerAnimator : MonoBehaviour
 {
-    private Animator _animator;
+    [SerializeField] private Animator _animator;
 
     private static class Params
     {
@@ -11,12 +11,6 @@ public class PlayerAnimator : MonoBehaviour
         internal static readonly int IsGrounded = Animator.StringToHash(nameof(IsGrounded));
         internal static readonly int IsAttack = Animator.StringToHash(nameof(IsAttack));
     }
-
-    private void Awake()
-    {
-        _animator = GetComponent<Animator>();
-    }
-
     public void SetXVelocity(float value)
     {
         _animator.SetFloat(Params.XVelocity, value);

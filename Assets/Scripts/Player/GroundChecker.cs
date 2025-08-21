@@ -29,4 +29,11 @@ public class GroundChecker : MonoBehaviour
         );
         _playerAnimator.SetIsGrounded(_isGrounded);
     }
+    
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+
+        Gizmos.DrawRay(transform.position, Vector3.down * _groundCheckDistance);
+    }
 }

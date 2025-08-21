@@ -1,23 +1,22 @@
 using UnityEngine;
 
 [RequireComponent(typeof(GroundChecker))]
-[RequireComponent(typeof(PlayerAnimator), typeof(Rotator), typeof(Rigidbody2D))]
+[RequireComponent(typeof(PlayerAnimator), typeof(Rigidbody2D))]
 public class Movement : MonoBehaviour
 {
     [SerializeField] private float _speed = 5f;
     [SerializeField] private float _jumpForce = 7.5f;
     [SerializeField] private InputReader _inputReader;
+    [SerializeField] private Rotator _rotator;
 
     private PlayerAnimator _playerAnimator;
     private Rigidbody2D _rigidbody2D;
-    private Rotator _rotator;
     private Vector2 _moveDirection;
 
     private void Start()
     {
         _playerAnimator = GetComponent<PlayerAnimator>();
         _rigidbody2D = GetComponent<Rigidbody2D>();
-        _rotator = GetComponent<Rotator>();
     }
 
     private void Update()

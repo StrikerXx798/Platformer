@@ -35,7 +35,7 @@ public class Combat : MonoBehaviour
             {
                 if (enemy.TryGetComponent(out Health health))
                 {
-                    health.TakeDamage(_attackDamage);
+                    health.DealDamage(_attackDamage);
                 }
             }
         }

@@ -34,7 +34,7 @@ public class EnemyCombat : MonoBehaviour
             {
                 if (player.TryGetComponent(out Health health))
                 {
-                    health.TakeDamage(_attackDamage);
+                    health.DealDamage(_attackDamage);
                 }
             }
         }
