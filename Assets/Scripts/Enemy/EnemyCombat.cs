@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections;
 using UnityEngine;
 
 public class EnemyCombat : MonoBehaviour
@@ -6,42 +7,77 @@ public class EnemyCombat : MonoBehaviour
     [SerializeField] private float _attackDamage;
     [SerializeField] private float _attackRadius;
     [SerializeField] private Transform _attackPoint;
+    [SerializeField] private float _attackDelay;
     [SerializeField] private EnemyAnimator _enemyAnimator;
     [SerializeField] private Patroller _patroller;
 
-    private bool _isAttacking;
+    private Coroutine _attackCoroutine;
 
     private void Update()
     {
         if (_patroller.PlayerDetected)
         {
-            Attack();
+            if (PlayerInAttackRange())
+            {
+                if (_attackCoroutine is not null)
+                    return;
+
+                _attackCoroutine = StartCoroutine(AttackCoroutine());
+            }
+            else
+            {
+                StopAttacking();
+            }
+        }
+        else
+        {
+            StopAttacking();
         }
     }
 
-    private void Attack()
+    private IEnumerator AttackCoroutine()
     {
-        if (_isAttacking)
-            return;
-
-        _isAttacking = true;
-        _enemyAnimator.TriggerAttack();
-        var hitted = Physics2D.OverlapCircleAll(_attackPoint.position, _attackRadius);
-
-        foreach (var hit in hitted)
+        while (PlayerInAttackRange())
         {
-            if (hit.TryGetComponent(out Player player))
+            _enemyAnimator.TriggerAttack();
+
+            yield return new WaitForSeconds(_attackDelay);
+
+            if (PlayerInAttackRange())
             {
-                if (player.TryGetComponent(out Health health))
+                var hitted = Physics2D.OverlapCircleAll(_attackPoint.position, _attackRadius);
+
+                foreach (var hit in hitted)
                 {
-                    health.DealDamage(_attackDamage);
+                    if (hit.TryGetComponent(out Player player))
+                    {
+                        if (player.TryGetComponent(out Health health))
+                        {
+                            health.DealDamage(_attackDamage);
+                        }
+                    }
                 }
             }
+
+            yield return null;
         }
+
+        _attackCoroutine = null;
+    }
+
+    private bool PlayerInAttackRange()
+    {
+        var playerInAttackRange =
+            Vector2.Distance(_attackPoint.position, _patroller.PlayerPosition) <= _attackRadius;
+
+        return playerInAttackRange;
     }
 
     private void StopAttacking()
     {
-        _isAttacking = false;
+        if (_attackCoroutine is null)
+            return;
+
+        StopCoroutine(_attackCoroutine);
     }
 }

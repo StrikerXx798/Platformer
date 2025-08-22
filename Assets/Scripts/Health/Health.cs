@@ -20,35 +20,33 @@ public class Health : MonoBehaviour
         _currentHealth = _maxHealth;
     }
 
-    private float ChangeHealth(float value, string valueName, char mathOperator)
+    public float DealDamage(float damage)
     {
-        if (value < 0)
+        if (damage < 0)
         {
-            throw new ArgumentException($"{valueName} value can't be negative");
+            throw new ArgumentException("Damage value can't be negative");
         }
 
-        var newHealth = mathOperator switch
-        {
-            '-' => _currentHealth -= Mathf.Abs(value),
-            '+' => _currentHealth += value,
-            _ => throw new ArgumentException($"Unknown math operator {mathOperator}")
-        };
-
-        var clampedHealth = Mathf.Clamp(newHealth, MinHealth, MaxHealth);
+        var previousHealth = _currentHealth;
+        _currentHealth -= damage;
+        var clampedHealth = Mathf.Clamp(_currentHealth, MinHealth, MaxHealth);
         _currentHealth = clampedHealth;
         HealthChanged?.Invoke(clampedHealth);
+        Damaged?.Invoke(clampedHealth);
 
-        return clampedHealth;
-    }
-
-    public void DealDamage(float damage)
-    {
-        var currentHealth = ChangeHealth(damage, "Damage", '-');
-        Damaged?.Invoke(currentHealth);
+        return previousHealth - _currentHealth;
     }
 
     public void Heal(float heal)
     {
-        ChangeHealth(heal, "Heal", '+');
+        if (heal < 0)
+        {
+            throw new ArgumentException("Heal value can't be negative");
+        }
+
+        _currentHealth += heal;
+        var clampedHealth = Mathf.Clamp(_currentHealth, MinHealth, MaxHealth);
+        _currentHealth = clampedHealth;
+        HealthChanged?.Invoke(clampedHealth);
     }
 }

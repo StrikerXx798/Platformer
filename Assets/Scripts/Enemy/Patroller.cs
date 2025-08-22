@@ -13,6 +13,7 @@ public class Patroller : MonoBehaviour
 
     public Vector2 CurrentVelocity { get; private set; }
     public bool PlayerDetected { get; private set; }
+	public Vector2 PlayerPosition { get; private set; }
 
     private void Awake()
     {

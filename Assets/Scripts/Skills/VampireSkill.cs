@@ -1,6 +1,7 @@
-using UnityEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class VampireSkill : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class VampireSkill : MonoBehaviour
     [SerializeField] private float _drainRadius = 5f;
     [SerializeField] private float _drainDamage = 10f;
     [SerializeField] private Health _playerHealth;
+    [SerializeField] private SkillEffect _skillEffect;
 
     public event Action<float> OnSkillActivated;
     public event Action OnSkillDeactivated;
@@ -22,40 +24,15 @@ public class VampireSkill : MonoBehaviour
     private bool _isCoolingDown = false;
     private float _activeTimeRemaining = 0f;
     private float _cooldownTimeRemaining = 0f;
-    private List<Health> _affectedEnemies = new List<Health>();
-
-    private void Update()
-    {
-        if (_isActive)
-        {
-            _activeTimeRemaining -= Time.deltaTime;
-            DrainHealthFromAffectedEnemies();
-
-            if (_activeTimeRemaining <= MinTime)
-            {
-                DeactivateAbility();
-            }
-        }
-        else if (_isCoolingDown)
-        {
-            _cooldownTimeRemaining -= Time.deltaTime;
-
-            if (_cooldownTimeRemaining <= MinTime)
-            {
-                _isCoolingDown = false;
-                OnSkillReady?.Invoke();
-            }
-        }
-    }
+    private readonly List<Health> _affectedEnemies = new List<Health>();
 
     private void DeactivateAbility()
     {
         _isActive = false;
-        _isCoolingDown = true;
-        _cooldownTimeRemaining = _cooldownDuration;
         OnSkillDeactivated?.Invoke();
-        OnSkillCooldownStarted?.Invoke(_cooldownDuration);
         _affectedEnemies.Clear();
+        _skillEffect.StopEffect();
+        StartCoroutine(SkillCooldownCoroutine());
     }
 
     private void DrainHealthFromAffectedEnemies()
@@ -64,22 +41,71 @@ public class VampireSkill : MonoBehaviour
         {
             if (enemyHealth is not null)
             {
-                enemyHealth.DealDamage(_drainDamage * Time.deltaTime);
-                _playerHealth.Heal(_drainDamage * Time.deltaTime);
+                float actualDamageDealt = enemyHealth.DealDamage(_drainDamage * Time.deltaTime);
+                _playerHealth.Heal(actualDamageDealt);
             }
         }
     }
 
-    private void OnDrawGizmos()
+    private IEnumerator SkillActiveCoroutine()
     {
-        if (_isActive)
-            Gizmos.color = Color.red;
-        else if (_isCoolingDown)
-            Gizmos.color = Color.blue;
-        else
-            Gizmos.color = Color.yellow;
+        _isActive = true;
+        _activeTimeRemaining = _abilityDuration;
+        OnSkillActivated?.Invoke(_abilityDuration);
 
-        Gizmos.DrawWireSphere(transform.position, _drainRadius);
+        while (_activeTimeRemaining > MinTime)
+        {
+            _activeTimeRemaining -= Time.deltaTime;
+            DrainHealthFromAffectedEnemies();
+
+            yield return null;
+        }
+
+        DeactivateAbility();
+    }
+
+    private IEnumerator SkillCooldownCoroutine()
+    {
+        _isCoolingDown = true;
+        _cooldownTimeRemaining = _cooldownDuration;
+        OnSkillCooldownStarted?.Invoke(_cooldownDuration);
+
+        while (_cooldownTimeRemaining > MinTime)
+        {
+            _cooldownTimeRemaining -= Time.deltaTime;
+
+            yield return null;
+        }
+
+        _isCoolingDown = false;
+        OnSkillReady?.Invoke();
+    }
+
+    private Health FindNearestEnemy()
+    {
+        Health nearestEnemyHealth = null;
+        var minDistance = float.MaxValue;
+
+        var hitColliders = Physics2D.OverlapCircleAll(transform.position, _drainRadius);
+
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.TryGetComponent(out Enemy enemy))
+            {
+                if (enemy.TryGetComponent(out Health enemyHealth))
+                {
+                    float distance = Vector2.Distance(transform.position, enemy.transform.position);
+
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        nearestEnemyHealth = enemyHealth;
+                    }
+                }
+            }
+        }
+
+        return nearestEnemyHealth;
     }
 
     public void ActivateAbility()
@@ -87,22 +113,15 @@ public class VampireSkill : MonoBehaviour
         if (_isActive || _isCoolingDown) return;
 
         _playerAnimator.TriggerSkill();
-        _isActive = true;
-        _activeTimeRemaining = _abilityDuration;
-        OnSkillActivated?.Invoke(_abilityDuration);
-
-        var hitEnemies = Physics2D.OverlapCircleAll(transform.position, _drainRadius);
+        _skillEffect.PlayEffect();
         _affectedEnemies.Clear();
+        var nearestEnemyHealth = FindNearestEnemy();
 
-        foreach (var enemyCollider in hitEnemies)
+        if (nearestEnemyHealth is not null)
         {
-            if (enemyCollider.TryGetComponent(out Enemy enemy))
-            {
-                if (enemy.TryGetComponent(out Health enemyHealth))
-                {
-                    _affectedEnemies.Add(enemyHealth);
-                }
-            }
+            _affectedEnemies.Add(nearestEnemyHealth);
         }
+
+        StartCoroutine(SkillActiveCoroutine());
     }
 }
